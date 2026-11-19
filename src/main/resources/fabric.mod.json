@@ -3,7 +3,7 @@
   "id": "classic_rabbits",
   "version": "${version}",
   "name": "Classic Rabbits",
-  "description": "Conejos con el modelo de 1.12.2 y las animaciones de 26.3. Solo cambia como se ven: el comportamiento es el de siempre.",
+  "description": "Rabbits with the 1.12.2 model and the 26.3 animations. Only changes how they look: behaviour stays vanilla.",
   "authors": ["Nikitomiamor"],
   "license": "All-Rights-Reserved",
   "environment": "client",

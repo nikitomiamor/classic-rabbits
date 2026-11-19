@@ -7,13 +7,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.animal.rabbit.Rabbit;
 
 /**
- * Texturas clasicas (layout de 1.12.2). Viven en assets/classic_rabbits/textures/entity/rabbit/,
- * asi un resource pack puede reemplazarlas con el mismo nombre.
+ * Classic textures (1.12.2 layout). They live in assets/classic_rabbits/textures/entity/rabbit/,
+ * so a resource pack can replace them using the same names.
  */
 public final class ClassicRabbitTextures {
     private ClassicRabbitTextures() {}
 
-    // Adultos: texturas de 1.12.2 tal cual. Bebes: rabbit/baby/, con los ojos 1 px mas abajo.
+    // Adults: 1.12.2 textures as they are. Babies: rabbit/baby/, with the eyes 1 px lower.
     private static final Identifier TOAST = tex("", "toast");
     private static final Identifier BABY_TOAST = tex("baby/", "toast");
     private static final Map<Rabbit.Variant, Identifier> ADULT = byVariant("");

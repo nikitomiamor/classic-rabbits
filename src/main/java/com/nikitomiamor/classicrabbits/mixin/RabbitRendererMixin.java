@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Adulto y bebe usan las texturas clasicas (64x32), como en 1.12.2. */
+/** Adult and baby use the classic textures (64x32), as in 1.12.2. */
 @Mixin(RabbitRenderer.class)
 public abstract class RabbitRendererMixin {
     @Inject(

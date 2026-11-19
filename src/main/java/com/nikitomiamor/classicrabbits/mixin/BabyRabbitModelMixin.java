@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** El conejo bebe usa el modelo hecho en Blockbench a partir del bebe de 1.12.2. */
+/** The baby rabbit uses the model made in Blockbench from the 1.12.2 baby. */
 @Mixin(BabyRabbitModel.class)
 public abstract class BabyRabbitModelMixin {
     @Inject(method = "createBodyLayer", at = @At("HEAD"), cancellable = true)

@@ -12,8 +12,8 @@ import net.minecraft.client.animation.definitions.RabbitAnimation;
 import org.joml.Vector3f;
 
 /**
- * Toma las animaciones de 26.3 y les aplica las reglas de {@link ClassicRabbitAdaptRules}:
- * un canal puede moverse a otro hueso y escalarse. Lo demas queda igual.
+ * Takes the 26.3 animations and applies the rules from {@link ClassicRabbitAdaptRules}:
+ * a channel can be moved to another bone and scaled. Everything else stays the same.
  */
 public final class ClassicRabbitAnimations {
     private ClassicRabbitAnimations() {}

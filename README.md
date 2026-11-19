@@ -1,14 +1,14 @@
 # Classic Rabbits
 
-Mod de Fabric (solo cliente) para Minecraft 26.3: los conejos usan el modelo y las texturas de la 1.12.2 con las animaciones de 26.3. Solo cambia cómo se ven; el comportamiento es el de vanilla.
+A client-side Fabric mod for Minecraft 26.3: rabbits use the 1.12.2 model and textures with the 26.3 animations. It only changes how they look; behaviour stays vanilla.
 
-## Descarga
-El `.jar` está en [Releases](../../releases). Requiere Fabric Loader 0.20+.
+## Download
+Get the `.jar` from [Releases](../../releases). Requires Fabric Loader 0.20+.
 
-## Compilar
+## Building
 ```bash
 ./build.sh
 ```
-Compila con `javac` contra el jar de 26.3 y las librerías que instala Modrinth (ver variables al principio de `build.sh`). El jar sale en `build/libs/`.
+Compiles with `javac` against the 26.3 game jar and the libraries installed by the Modrinth App (see the variables at the top of `build.sh`). The jar ends up in `build/libs/`.
 
-`tools/` tiene los scripts que generan la geometría (`rabbit_spec.py`, `from_bbmodel.py`) y un visor three.js; `blockbench/` los modelos fuente.
+`tools/` holds the scripts that generate the geometry (`rabbit_spec.py`, `from_bbmodel.py`) and a three.js viewer; `blockbench/` holds the source models.

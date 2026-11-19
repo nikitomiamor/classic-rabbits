@@ -1,9 +1,9 @@
-"""Exporta modelos (en coordenadas de ModelPart) a .bbmodel de Blockbench (formato Modded Entity).
+"""Exports models (in ModelPart coordinates) to Blockbench .bbmodel (Modded Entity format).
 
-Conversion (la misma que usa Blockbench al exportar Modded Entity):
-  Blockbench x = -x_mc,  y = 24 - y_mc,  z = z_mc   (posiciones absolutas, sin aplicar rotaciones)
-  rotacion Blockbench = (-rx, -ry, +rz) en grados
-Uso: python to_bbmodel.py <carpeta_salida> <textura_clasica.png> <textura_bebe_26.3.png>
+Conversion (the same one Blockbench uses when exporting Modded Entity):
+  Blockbench x = -x_mc,  y = 24 - y_mc,  z = z_mc   (absolute positions, rotations not applied)
+  Blockbench rotation = (-rx, -ry, +rz) in degrees
+Usage: python to_bbmodel.py <output_folder> <classic_texture.png> <baby_26.3_texture.png>
 """
 import base64, json, math, os, sys, uuid
 
@@ -12,7 +12,7 @@ from rabbit_spec import classic, P  # noqa: E402
 
 D = math.degrees
 
-# Bebe de 26.3 (BabyRabbitModel), como referencia de proporciones del "estilo nuevo".
+# 26.3 baby (BabyRabbitModel), as a proportion reference for the "new style".
 baby_26 = P("root", (0, 0, 0), children=[
     P("body", (0, 23, 1.6), children=[
         P("body_r1", (0, -2, -1.6), (-0.5236, 0, 0), [(0, 8, -2, -2, -3, 4, 3, 6)]),
@@ -38,17 +38,17 @@ baby_26 = P("root", (0, 0, 0), children=[
 ])
 
 
-# Bebe de 1.12.2: el mismo modelo, pero ModelRabbit.render() escalaba al dibujar:
-#   cabeza, orejas y nariz: scale(0.56666666) + translate(0, 22, 2)
-#   todo lo demas:          scale(0.4)        + translate(0, 36, 0)
+# 1.12.2 baby: the same model, but ModelRabbit.render() scaled it when drawing:
+#   head, ears and nose: scale(0.56666666) + translate(0, 22, 2)
+#   everything else:     scale(0.4)        + translate(0, 36, 0)
 BABY_HEAD = (0.56666666, (0.0, 22.0, 2.0))
 BABY_BODY = (0.4, (0.0, 36.0, 0.0))
 HEAD_PARTS = {"head", "left_ear", "right_ear"}
 
 
 def make_baby_1122(spec):
-    """Devuelve el bebe de 1.12.2 con la escala ya aplicada a la geometria.
-    Los cubos guardan las medidas originales para el UV (u, v, x, y, z, w, h, d, uw, uh, ud)."""
+    """Returns the 1.12.2 baby with the scale already applied to the geometry.
+    The cubes keep the original sizes for the UV (u, v, x, y, z, w, h, d, uw, uh, ud)."""
     def walk(part, parent_abs, parent_new_abs):
         ax = [parent_abs[i] + part["pivot"][i] for i in range(3)]
         s, t = BABY_HEAD if part["name"] in HEAD_PARTS else BABY_BODY
@@ -65,7 +65,7 @@ def make_baby_1122(spec):
 
 
 def mirrored_faces(u, v, w, h, d):
-    """UV por cara equivalente al UV de caja espejado (tal como lo calcula Blockbench)."""
+    """Per-face UV equivalent to the mirrored box UV (as Blockbench computes it)."""
     return {
         "north": {"uv": [u + d + w, v + d, u + d, v + d + h], "texture": 0},
         "east": {"uv": [u + 2 * d + w, v + d, u + d + w, v + d + h], "texture": 0},
@@ -81,7 +81,7 @@ def r(x):
 
 
 def box_faces(u, v, w, h, d):
-    """Caras con el UV de caja de Blockbench."""
+    """Faces with the Blockbench box UV."""
     return {
         "north": {"uv": [u + d, v + d, u + d + w, v + d + h], "texture": 0},
         "east": {"uv": [u, v + d, u + d, v + d + h], "texture": 0},
@@ -93,7 +93,7 @@ def box_faces(u, v, w, h, d):
 
 
 def convert(spec, elements, abs_mc=(0.0, 0.0, 0.0), is_root=True):
-    """Devuelve la lista de hijos del outliner para esta parte."""
+    """Returns the list of outliner children for this part."""
     out = []
     for part in spec["children"]:
         px = abs_mc[0] + part["pivot"][0]
@@ -103,9 +103,9 @@ def convert(spec, elements, abs_mc=(0.0, 0.0, 0.0), is_root=True):
         children = []
         for i, cube in enumerate(part["cubes"]):
             u, v, x, y, z, w, h, d = cube[:8]
-            per_face = len(cube) == 11          # cubo escalado: UV por cara con las medidas originales
+            per_face = len(cube) == 11          # scaled cube: per-face UV with the original sizes
             if per_face:
-                assert part["mirror"], "solo se usa con cubos espejados"
+                assert part["mirror"], "only used with mirrored cubes"
                 faces = mirrored_faces(u, v, *cube[8:])
             else:
                 faces = box_faces(u, v, w, h, d)
@@ -140,7 +140,7 @@ def bbmodel(name, spec, tex_path, tex_w, tex_h):
     src = "data:image/png;base64," + base64.b64encode(open(tex_path, "rb").read()).decode()
     box_uv = all(e["box_uv"] for e in elements)
     return {
-        # Modded Entity obliga UV de caja; con UV por cara se usa Generic Model ("free").
+        # Modded Entity requires box UV; with per-face UV, Generic Model ("free") is used.
         "meta": {"format_version": "4.10", "model_format": "modded_entity" if box_uv else "free", "box_uv": box_uv},
         "name": name, "model_identifier": name, "modded_entity_entity_class": "", "modded_entity_version": "1.17",
         "modded_entity_flip_y": True,
@@ -170,4 +170,4 @@ if __name__ == "__main__":
         data = bbmodel(fname.split(".bbmodel")[0], spec, tex, tw, th)
         with open(os.path.join(out_dir, fname), "w", encoding="utf-8") as f:
             json.dump(data, f, indent=1)
-        print(fname, "cubos:", len(data["elements"]))
+        print(fname, "cubes:", len(data["elements"]))

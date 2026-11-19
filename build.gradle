@@ -10,7 +10,7 @@ base {
 }
 
 dependencies {
-    // Minecraft 26.x ya no esta ofuscado: no hacen falta mappings.
+    // Minecraft 26.x is no longer obfuscated: no mappings needed.
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 }

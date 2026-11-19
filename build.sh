@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Compila el mod sin Gradle: Minecraft 26.x no esta ofuscado, asi que basta javac
-# contra el jar del juego y las librerias que ya instalo Modrinth.
-# Uso (Git Bash):  ./build.sh
+# Builds the mod without Gradle: Minecraft 26.x is not obfuscated, so plain javac
+# against the game jar and the libraries Modrinth already installed is enough.
+# Usage (Git Bash):  ./build.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -13,7 +13,7 @@ LIBS="${LIBS:-$APPDATA/ModrinthApp/meta/libraries}"
 rm -rf build/classes build/res build/libs
 mkdir -p build/classes build/res build/libs
 
-# classpath: juego + librerias (las versiones mas nuevas primero)
+# classpath: game + libraries (newest versions first)
 CP="$(cygpath -w "$MC_JAR")"
 while IFS= read -r jar; do CP="$CP;$(cygpath -w "$jar")"; done < <(find "$LIBS" -name '*.jar' | sort -r)
 

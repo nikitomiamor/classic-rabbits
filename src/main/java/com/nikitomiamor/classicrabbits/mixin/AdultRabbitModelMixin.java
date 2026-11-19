@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** El conejo adulto usa la geometria de 1.12.2 en lugar de la de 26.3. */
+/** The adult rabbit uses the 1.12.2 geometry instead of the 26.3 one. */
 @Mixin(AdultRabbitModel.class)
 public abstract class AdultRabbitModelMixin {
     @Inject(method = "createBodyLayer", at = @At("HEAD"), cancellable = true)

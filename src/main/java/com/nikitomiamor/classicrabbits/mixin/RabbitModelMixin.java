@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Al armar las animaciones del conejo (adulto y bebe), usa la version adaptada al modelo clasico. */
+/** When building the rabbit animations (adult and baby), use the version adapted to the classic model. */
 @Mixin(RabbitModel.class)
 public abstract class RabbitModelMixin {
     @Redirect(

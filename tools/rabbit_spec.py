@@ -1,10 +1,10 @@
-"""Especificacion unica del conejo clasico.
+"""Single source of truth for the classic rabbit.
 
-Genera:
-  - viewer/data.js  (modelo vanilla 26.3 + modelo clasico + animaciones) para el visor 3D
-  - ClassicRabbitLayer.java (geometria) y ClassicRabbitAnimations.java (factores de adaptacion)
+Generates:
+  - viewer/data.js  (vanilla 26.3 model + classic model + animations) for the 3D viewer
+  - ClassicRabbitLayer.java (geometry) and ClassicRabbitAnimations.java (adaptation factors)
 
-Coordenadas: las de ModelPart de Minecraft (y hacia abajo, suelo en y=24, frente en -z).
+Coordinates: Minecraft ModelPart ones (y points down, ground at y=24, front at -z).
 """
 import json, math, os, re, sys
 
@@ -35,24 +35,24 @@ vanilla = P("root", (0, 0, 0), children=[
     ]),
 ])
 
-# ---------------------------------------------------------------- clasico (ModelRabbit 1.12.2)
-# Pivotes absolutos de 1.12.2 -> relativos a los grupos que animan las animaciones de 26.3.
-BODY = (0.0, 22.0, 6.0)      # pivote del grupo "body": abajo atras del cuerpo (como en 26.3)
-HIP = (0.0, 17.5, 3.7)       # pivote del grupo "backlegs": cadera
-SHOULDER = (0.0, 17.0, -1.0) # pivote del grupo "frontlegs": hombros
+# ---------------------------------------------------------------- classic (1.12.2 ModelRabbit)
+# Absolute 1.12.2 pivots -> relative to the groups the 26.3 animations drive.
+BODY = (0.0, 22.0, 6.0)      # "body" group pivot: bottom back of the body (as in 26.3)
+HIP = (0.0, 17.5, 3.7)       # "backlegs" group pivot: hip
+SHOULDER = (0.0, 17.0, -1.0) # "frontlegs" group pivot: shoulders
 HEAD = (0.0, 16.0, -1.0)
 
 def rel(a, b):
     return tuple(round(a[i] - b[i], 4) for i in range(3))
 
-T20 = -0.34906584   # -20 grados
-T10 = -0.17453292   # -10 grados
-EAR = 0.2617994     # 15 grados
+T20 = -0.34906584   # -20 degrees
+T10 = -0.17453292   # -10 degrees
+EAR = 0.2617994     # 15 degrees
 
 def ear(name, side, u, v):
-    """Oreja con pivote en su base (las animaciones de 26.3 la giran desde ahi)."""
+    """Ear pivoting at its base (the 26.3 animations rotate it from there)."""
     th = EAR * side
-    base = (1.5 * side, -4.0, -0.5)                       # centro de la base, sin rotar
+    base = (1.5 * side, -4.0, -0.5)                       # center of the base, unrotated
     bx = base[0] * math.cos(th) + base[2] * math.sin(th)  # Ry(th) * base
     bz = -base[0] * math.sin(th) + base[2] * math.cos(th)
     return P(name, (round(bx, 4), base[1], round(bz, 4)), (0, th, 0),
@@ -70,26 +70,26 @@ classic = P("root", (0, 0, 0), children=[
         ]),
     ]),
     P("backlegs", HIP, children=[
-        # muslo en la pata (rotado -20 como en 1.12.2); pie en el "haunch" con +20 para quedar plano
+        # thigh on the leg (rotated -20 as in 1.12.2); foot on the "haunch" with +20 to stay flat
         P("right_hind_leg", rel((-3, 17.5, 3.7), HIP), (T20, 0, 0), [(16, 15, -1, 0, 0, 2, 4, 5)], mirror=True, children=[
             P("right_haunch", (0, 0, 0), (-T20, 0, 0), [(8, 24, -1, 5.5, -3.7, 2, 1, 7)], mirror=True)]),
         P("left_hind_leg", rel((3, 17.5, 3.7), HIP), (T20, 0, 0), [(30, 15, -1, 0, 0, 2, 4, 5)], mirror=True, children=[
             P("left_haunch", (0, 0, 0), (-T20, 0, 0), [(26, 24, -1, 5.5, -3.7, 2, 1, 7)], mirror=True)]),
     ]),
 ])
-CLASSIC_SCALE = 0.6  # ModelRabbit 1.12.2 dibujaba al adulto al 60 %
+CLASSIC_SCALE = 0.6  # 1.12.2 ModelRabbit drew the adult at 60 %
 
-# ---------------------------------------------------------------- adaptacion de animaciones
-# (animacion, hueso, canal) -> lista de (hueso destino, factor); lo que no figura queda igual
+# ---------------------------------------------------------------- animation adaptation
+# (animation, bone, channel) -> list of (target bone, factor); anything not listed stays the same
 ADAPT = {
-    # 26.3 gira el grupo de patas traseras 125 grados (pensado para pies planos). En el clasico eso
-    # levanta el muslo por encima del lomo: se lo paso solo a los pies, al 25 %.
-    # Resultado: muslo ~47 grados (right/left_hind_leg) y pie ~78, como el salto de 1.12.2 (50 / 80).
+    # 26.3 rotates the hind leg group 125 degrees (meant for flat feet). On the classic model that
+    # lifts the thigh above the back: it is passed only to the feet, at 25 %.
+    # Result: thigh ~47 degrees (right/left_hind_leg) and foot ~78, like the 1.12.2 hop (50 / 80).
     ("HOP", "backlegs", "ROTATION"): [("left_haunch", 0.25), ("right_haunch", 0.25)],
-    # Al pararse, 26.3 adelanta la cabeza hasta 2,5 px (pensado para su cabeza grande). Con el conejo
-    # parado eso la sube y la separa del torso clasico: se anula y quedan solo sus giros.
+    # When standing, 26.3 moves the head forward up to 2.5 px (meant for its big head). With the classic
+    # rabbit standing that lifts it off the torso: it is zeroed and only its rotations remain.
     ("IDLE_HEAD_TILT", "head", "POSITION"): [("head", 0.0)],
-    # Bebe (animaciones de bebe de 26.3): tiene los mismos dos problemas que el adulto clasico.
+    # Baby (26.3 baby animations): it has the same two problems as the classic adult.
     ("BABY_HOP", "backlegs", "ROTATION"): [("left_haunch", 0.25), ("right_haunch", 0.25)],
     ("BABY_IDLE_HEAD_TILT", "head", "POSITION"): [("head", 0.0)],
 }
@@ -97,7 +97,7 @@ ADAPT = {
 def parse_anims(path):
     s = open(path, encoding="utf-8").read()
     out = {}
-    # acepta los dos estilos de Vineflower: con o sin prefijos de clase (Builder, Targets, Interpolations)
+    # accepts both Vineflower styles: with or without class prefixes (Builder, Targets, Interpolations)
     for m in re.finditer(r'public static final AnimationDefinition (\w+) = (?:AnimationDefinition\.)?Builder\.withLength\(([\d.]+)F\)(.*?)\.build\(\);', s, re.S):
         name, length, body = m.groups()
         anim = {"length": float(length), "looping": ".looping()" in body, "bones": {}}
@@ -111,7 +111,7 @@ def parse_anims(path):
                 x, y, z = float(x), float(y), float(z)
                 if kind == "degreeVec":
                     v = [R(x), R(y), R(z)]
-                else:  # posVec invierte y
+                else:  # posVec flips y
                     v = [x, -y, z]
                 ks.append({"t": float(t), "v": v, "i": interp})
             anim["bones"].setdefault(bone, []).append({"target": target, "kf": ks})
@@ -119,7 +119,7 @@ def parse_anims(path):
     return out
 
 def f(x):
-    """float de Java."""
+    """Java float."""
     s = repr(float(round(x, 6)))
     return s + "F"
 
@@ -152,15 +152,15 @@ import net.minecraft.client.model.geom.builders.MeshTransformer;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
 /**
- * Conejo de 1.12.2 armado con los mismos nombres de partes que el conejo de 26.3,
- * para que las animaciones de 26.3 (salto y pararse en dos patas) se le apliquen.
- * Archivo generado por rabbit_spec.py: no editar a mano.
+ * 1.12.2 rabbit built with the same part names as the 26.3 rabbit,
+ * so the 26.3 animations (hop and standing on its hind legs) apply to it.
+ * Generated by rabbit_spec.py: do not edit by hand.
  */
 @SuppressWarnings("unused")
 public final class ClassicRabbitModel {{
     private ClassicRabbitModel() {{}}
 
-    /** 1.12.2 dibujaba al conejo adulto al 60 %. */
+    /** 1.12.2 drew the adult rabbit at 60 %. */
     public static final float SCALE = {f(CLASSIC_SCALE)};
 
     public static LayerDefinition createBodyLayer() {{
@@ -180,13 +180,13 @@ public final class ClassicRabbitModel {{
 import java.util.List;
 
 /**
- * Ajustes de las animaciones de 26.3 para el modelo clasico.
- * Archivo generado por rabbit_spec.py: no editar a mano.
+ * Tweaks to the 26.3 animations for the classic model.
+ * Generated by rabbit_spec.py: do not edit by hand.
  */
 public final class ClassicRabbitAdaptRules {{
     private ClassicRabbitAdaptRules() {{}}
 
-    /** Canal (animacion, hueso, tipo) que se reasigna a otro hueso con un factor. */
+    /** Channel (animation, bone, type) that is remapped to another bone with a factor. */
     public record Rule(String animation, String bone, String target, String newBone, float factor) {{}}
 
     public static final List<Rule> RULES = List.of(
@@ -208,7 +208,7 @@ def main(anim_src, out_dir, baby_anim_src=None, baby_spec_json=None):
             "adapt": [[k[0], k[1], k[2], t] for k, t in ADAPT.items()]}
     if baby_anim_src and baby_spec_json:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from to_bbmodel import baby_26  # bebe vanilla 26.3, como referencia
+        from to_bbmodel import baby_26  # vanilla 26.3 baby, as reference
         for name, anim in parse_anims(baby_anim_src).items():
             anims["BABY_" + name] = anim
         data["babyVanilla"] = baby_26

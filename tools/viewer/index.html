@@ -10,7 +10,7 @@
   anim <select id="anim"><option>NONE</option><option>HOP</option><option>IDLE_HEAD_TILT</option><option>BABY_HOP</option><option>BABY_IDLE_HEAD_TILT</option></select>
   t <input id="t" type="range" min="0" max="1" step="0.001" value="0" style="width:220px"> <span id="tv">0</span>s
   <label><input id="play" type="checkbox"> play</label>
-  <label><input id="adapt" type="checkbox" checked> adaptar</label>
+  <label><input id="adapt" type="checkbox" checked> adapt</label>
   view <select id="view"><option>side</option><option>front</option><option>persp</option><option>cC</option><option>cV</option><option>pC</option><option>pV</option><option>fC</option><option>fV</option><option>cBC</option><option>cBV</option><option>pBC</option><option>pBV</option><option>fBC</option><option>fBV</option></select>
 </div>
 <script src="data.js"></script>
@@ -25,7 +25,7 @@ addEventListener('resize', fit);
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9cc3e6);
 scene.add(new THREE.AmbientLight(0xffffff, 0.75));
 const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(-20, 40, -30); scene.add(dl);
-// suelo
+// ground
 const grid = new THREE.GridHelper(64, 64, 0x555555, 0x88aa88); scene.add(grid);
 const cam = new THREE.PerspectiveCamera(30, innerWidth/innerHeight, 0.1, 1000);
 
@@ -33,7 +33,7 @@ const COLORS = {torso:0x9b6b43, body:0x9b6b43, head:0xb98a5a, tail:0xeeeeee, lef
   right_front_leg:0x7a5434, left_front_leg:0x8a6444, right_hind_leg:0x6b4a2e, left_hind_leg:0x7b5a3e,
   right_haunch:0x553a22, left_haunch:0x654a32};
 
-// ModelPart -> Group. Coordenadas de Minecraft (y abajo); el contenedor invierte x/y como el renderer.
+// ModelPart -> Group. Minecraft coordinates (y down); the container flips x/y like the renderer.
 function build(spec, parts){
   const g = new THREE.Group(); g.name = spec.name;
   g.userData.rest = {pos: spec.pivot.slice(), rot: spec.rot.slice()};
@@ -52,16 +52,16 @@ function build(spec, parts){
 function makeEntity(spec, scale, xOffset, xPos=0){
   const parts = {};
   const root = build(spec, parts);
-  const ent = new THREE.Group();           // world: suelo en y=0
+  const ent = new THREE.Group();           // world: ground at y=0
   const flip = new THREE.Group(); flip.scale.set(-1,-1,1); flip.position.y = 24.016;  // render: scale(-1,-1,1) + translate(0,-1.501,0)
-  const scaler = new THREE.Group();        // MeshTransformer.scaling(f): translated(0, 24.016*(1-f)) y escala f
+  const scaler = new THREE.Group();        // MeshTransformer.scaling(f): translated(0, 24.016*(1-f)) and scale f
   scaler.position.y = 24.016*(1-scale); scaler.scale.setScalar(scale);
   flip.add(scaler); scaler.add(root); ent.add(flip); ent.position.z = xOffset; ent.position.x = xPos; scene.add(ent);
   return parts;
 }
 const V = makeEntity(D.vanilla, 1.0, 16);
 const C = makeEntity(D.classic, D.classicScale, -14);
-// bebes: mas atras en x para no mezclarse con los adultos
+// babies: further back on x so they don't overlap the adults
 const BX = -60;
 const BV = D.babyVanilla ? makeEntity(D.babyVanilla, 1.0, 16, BX) : {};
 const BC = D.babyClassic ? makeEntity(D.babyClassic, 1.0, -14, BX) : {};
@@ -75,8 +75,8 @@ function poseAll(anim, t){
 function resetPose(parts){ for (const k in parts){ const p=parts[k], r=p.userData.rest; p.position.set(...r.pos); p.rotation.set(r.rot[0],r.rot[1],r.rot[2],'ZYX'); } }
 function catmull(a,p0,p1,p2,p3){ return 0.5*((2*p1)+(-p0+p2)*a+(2*p0-5*p1+4*p2-p3)*a*a+(-p0+3*p1-3*p2+p3)*a*a*a); }
 function sample(kf, t){
-  let prev = 0; while (prev+1 < kf.length && !(t <= kf[prev+1].t)) prev++;   // igual que binarySearch(...)-1
-  // binarySearch devuelve el primer i con t<=kf[i].t; prev = ese-1 (min 0)
+  let prev = 0; while (prev+1 < kf.length && !(t <= kf[prev+1].t)) prev++;   // same as binarySearch(...)-1
+  // binarySearch returns the first i with t<=kf[i].t; prev = that-1 (min 0)
   let first = kf.findIndex(k => t <= k.t); if (first < 0) first = kf.length;
   prev = Math.max(0, first-1);
   const next = Math.min(kf.length-1, prev+1);
@@ -110,13 +110,13 @@ function applyAnim(parts, name, t, adapt){
 const ui = id=>document.getElementById(id);
 function setView(){
   const v = ui('view').value;
-  if (v==='side'){ cam.position.set(0, 10, -110); }       // desde el costado (x negativo mira al conejo de lado)
+  if (v==='side'){ cam.position.set(0, 10, -110); }       // from the side (negative x looks at the rabbit sideways)
   if (v==='front'){ cam.position.set(0, 10, -110); }
   if (v==='persp'){ cam.position.set(-70, 45, -70); }
   if (v==='side'){ cam.position.set(-110, 8, 0); }
   if (v==='side'){ cam.lookAt(0, 6, 0); return; }
   if (v==='persp'){ cam.lookAt(0, 6, 0); return; }
-  // vistas cercanas: cC/cV = clasico/vanilla de costado, pC/pV = en perspectiva
+  // close-up views: cC/cV = classic/vanilla from the side, pC/pV = in perspective
   const baby = v.length === 3, x0 = baby ? BX : 0;
   const z = v.endsWith('C') ? -14 : 16, k = baby ? 0.75 : (v.endsWith('C') ? 0.6 : 1);
   if (v.startsWith('c')) cam.position.set(x0-55*k, 5*k, z);
@@ -144,7 +144,7 @@ function renderOnce(){
   setView(); renderer.render(scene, cam);
 }
 window.renderOnce = renderOnce;
-// hoja de cuadros: sheet('IDLE_HEAD_TILT', [0.5, 1, 1.5], 'pC')
+// sheet of frames: sheet('IDLE_HEAD_TILT', [0.5, 1, 1.5], 'pC')
 window.sheet = (anim, times, view, cols=4, crop=0.6) => {
   const src = renderer.domElement; let ov = document.getElementById('ov'); if (ov) ov.remove();
   ov = document.createElement('canvas'); ov.id = 'ov';
