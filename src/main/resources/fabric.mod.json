@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "classic_rabbits",
+  "version": "${version}",
+  "name": "Classic Rabbits",
+  "description": "Conejos con el modelo de 1.12.2 y las animaciones de 26.3. Solo cambia como se ven: el comportamiento es el de siempre.",
+  "authors": ["Nikitomiamor"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "mixins": [
+    {
+      "config": "classic_rabbits.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.0",
+    "minecraft": "~26.3"
+  }
+}

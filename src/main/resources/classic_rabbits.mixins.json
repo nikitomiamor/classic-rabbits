@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.nikitomiamor.classicrabbits.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "AdultRabbitModelMixin",
+    "BabyRabbitModelMixin",
+    "RabbitModelMixin",
+    "RabbitRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

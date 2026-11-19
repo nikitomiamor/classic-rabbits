@@ -1,0 +1,52 @@
+package com.nikitomiamor.classicrabbits;
+
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
+
+/**
+ * Conejo bebe (hecho en Blockbench a partir del bebe de 1.12.2), con los nombres de partes
+ * que animan las animaciones de bebe de 26.3. Usa la misma textura que el adulto clasico.
+ * Cada cubo esta a tamano de adulto (para que el UV calce) y una mini-parte lo escala.
+ * Archivo generado por from_bbmodel.py: no editar a mano.
+ */
+@SuppressWarnings("unused")
+public final class ClassicBabyRabbitModel {
+    private ClassicBabyRabbitModel() {}
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        PartDefinition p_body = root.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 23.2F, 2.4F, -0.0F, -0.0F, 0.0F));
+            PartDefinition p_torso = p_body.addOrReplaceChild("torso", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -1.2F, 0.8F, -0.34907F, -0.0F, 0.0F));
+                p_torso.addOrReplaceChild("torso_c1", CubeListBuilder.create().mirror().texOffs(0, 0).addBox(0.0F, 0.0F, 0.0F, 6.0F, 5.0F, 10.0F), new PartPose(-1.2F, -0.8F, -4.0F, 0.0F, 0.0F, 0.0F, 0.4F, 0.4F, 0.4F));
+            PartDefinition p_tail = p_body.addOrReplaceChild("tail", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -0.8F, 0.4F, -0.34907F, -0.0F, 0.0F));
+                p_tail.addOrReplaceChild("tail_c1", CubeListBuilder.create().mirror().texOffs(52, 6).addBox(0.0F, 0.0F, 0.0F, 3.0F, 3.0F, 2.0F), new PartPose(-0.85F, -1.1F, 0.0F, 0.0F, 0.0F, 0.0F, 0.56667F, 0.48333F, 0.525F));
+            PartDefinition p_head = p_body.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -1.6667F, -1.8333F, -0.0F, -0.0F, 0.0F));
+                p_head.addOrReplaceChild("head_c1", CubeListBuilder.create().mirror().texOffs(32, 0).addBox(0.0F, 0.0F, 0.0F, 5.0F, 4.0F, 5.0F), new PartPose(-1.6667F, -2.5166F, -2.8334F, 0.0F, 0.0F, 0.0F, 0.66668F, 0.62915F, 0.56668F));
+                p_head.addOrReplaceChild("head_c2", CubeListBuilder.create().mirror().texOffs(32, 9).addBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F), new PartPose(-0.2833F, -0.6666F, -3.0167F, 0.0F, 0.0F, 0.0F, 0.5666F, 0.5666F, 0.4667F));
+                PartDefinition p_left_ear = p_head.addOrReplaceChild("left_ear", CubeListBuilder.create(), PartPose.offsetAndRotation(0.7477F, -2.2666F, -0.4937F, -0.0F, 0.2618F, 0.0F));
+                    p_left_ear.addOrReplaceChild("left_ear_c1", CubeListBuilder.create().mirror().texOffs(58, 0).addBox(0.0F, 0.0F, 0.0F, 2.0F, 5.0F, 1.0F), new PartPose(-0.5667F, -2.8334F, -0.2833F, 0.0F, 0.0F, 0.0F, 0.5667F, 0.56668F, 0.5666F));
+                PartDefinition p_right_ear = p_head.addOrReplaceChild("right_ear", CubeListBuilder.create(), PartPose.offsetAndRotation(-0.7477F, -2.2666F, -0.4937F, -0.0F, -0.2618F, 0.0F));
+                    p_right_ear.addOrReplaceChild("right_ear_c1", CubeListBuilder.create().mirror().texOffs(52, 0).addBox(0.0F, 0.0F, 0.0F, 2.0F, 5.0F, 1.0F), new PartPose(-0.5667F, -2.8334F, -0.2833F, 0.0F, 0.0F, 0.0F, 0.5667F, 0.56668F, 0.5666F));
+            PartDefinition p_frontlegs = p_body.addOrReplaceChild("frontlegs", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -2.0F, -2.8F, -0.0F, -0.0F, 0.0F));
+                PartDefinition p_right_front_leg = p_frontlegs.addOrReplaceChild("right_front_leg", CubeListBuilder.create(), PartPose.offsetAndRotation(-1.2F, 0.0F, 0.0F, -0.17453F, -0.0F, 0.0F));
+                    p_right_front_leg.addOrReplaceChild("right_front_leg_c1", CubeListBuilder.create().mirror().texOffs(0, 15).addBox(0.0F, 0.0F, 0.0F, 2.0F, 7.0F, 2.0F), new PartPose(-0.35F, -0.2F, -0.65F, 0.0F, 0.0F, 0.0F, 0.5F, 0.42857F, 0.5F));
+                PartDefinition p_left_front_leg = p_frontlegs.addOrReplaceChild("left_front_leg", CubeListBuilder.create(), PartPose.offsetAndRotation(1.2F, 0.0F, 0.0F, -0.17453F, -0.0F, 0.0F));
+                    p_left_front_leg.addOrReplaceChild("left_front_leg_c1", CubeListBuilder.create().mirror().texOffs(8, 15).addBox(0.0F, 0.0F, 0.0F, 2.0F, 7.0F, 2.0F), new PartPose(-0.6F, -0.2F, -0.65F, 0.0F, 0.0F, 0.0F, 0.5F, 0.42857F, 0.5F));
+        PartDefinition p_backlegs = root.addOrReplaceChild("backlegs", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 21.4F, 1.48F, -0.0F, -0.0F, 0.0F));
+            PartDefinition p_right_hind_leg = p_backlegs.addOrReplaceChild("right_hind_leg", CubeListBuilder.create(), PartPose.offsetAndRotation(-1.2F, 0.0F, 0.0F, -0.34907F, -0.0F, 0.0F));
+                p_right_hind_leg.addOrReplaceChild("right_hind_leg_c1", CubeListBuilder.create().mirror().texOffs(16, 15).addBox(0.0F, 0.0F, 0.0F, 2.0F, 4.0F, 5.0F), new PartPose(-0.4F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, 0.3375F, 0.4F));
+                PartDefinition p_right_haunch = p_right_hind_leg.addOrReplaceChild("right_haunch", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.34907F, -0.0F, 0.0F));
+                    PartDefinition p_right_haunch_r1 = p_right_haunch.addOrReplaceChild("right_haunch_r1", CubeListBuilder.create(), PartPose.offsetAndRotation(-0.25F, 0.0F, 0.0F, -0.0F, 0.2618F, 0.0F));
+                        p_right_haunch_r1.addOrReplaceChild("right_haunch_r1_c1", CubeListBuilder.create().mirror().texOffs(8, 24).addBox(0.0F, 0.0F, 0.0F, 2.0F, 1.0F, 7.0F), new PartPose(-0.4F, 1.8F, -1.48F, 0.0F, 0.0F, 0.0F, 0.4F, 0.8F, 0.4F));
+            PartDefinition p_left_hind_leg = p_backlegs.addOrReplaceChild("left_hind_leg", CubeListBuilder.create(), PartPose.offsetAndRotation(1.2F, 0.0F, 0.0F, -0.34907F, -0.0F, 0.0F));
+                p_left_hind_leg.addOrReplaceChild("left_hind_leg_c1", CubeListBuilder.create().mirror().texOffs(30, 15).addBox(0.0F, 0.0F, 0.0F, 2.0F, 4.0F, 5.0F), new PartPose(-0.4F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, 0.3375F, 0.4F));
+                PartDefinition p_left_haunch = p_left_hind_leg.addOrReplaceChild("left_haunch", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.34907F, -0.0F, 0.0F));
+                    PartDefinition p_left_haunch_r1 = p_left_haunch.addOrReplaceChild("left_haunch_r1", CubeListBuilder.create(), PartPose.offsetAndRotation(0.25F, 0.0F, 0.0F, -0.0F, -0.2618F, 0.0F));
+                        p_left_haunch_r1.addOrReplaceChild("left_haunch_r1_c1", CubeListBuilder.create().mirror().texOffs(26, 24).addBox(0.0F, 0.0F, 0.0F, 2.0F, 1.0F, 7.0F), new PartPose(-0.4F, 1.8F, -1.48F, 0.0F, 0.0F, 0.0F, 0.4F, 0.8F, 0.4F));
+        return LayerDefinition.create(mesh, 64, 32);
+    }
+}
