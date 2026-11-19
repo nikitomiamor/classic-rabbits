@@ -3,7 +3,7 @@
   "id": "classic_rabbits",
   "version": "${version}",
   "name": "Classic Rabbits",
-  "description": "Rabbits with the 1.12.2 model and the 26.3 animations. Only changes how they look: behaviour stays vanilla.",
+  "description": "Rabbits with the classic model and the 26.3 animations. Only changes how they look: behaviour stays vanilla.",
   "authors": ["Nikitomiamor"],
   "license": "LGPL-3.0-only",
   "environment": "client",

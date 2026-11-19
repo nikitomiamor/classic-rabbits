@@ -33,12 +33,67 @@ const COLORS = {torso:0x9b6b43, body:0x9b6b43, head:0xb98a5a, tail:0xeeeeee, lef
   right_front_leg:0x7a5434, left_front_leg:0x8a6444, right_hind_leg:0x6b4a2e, left_hind_leg:0x7b5a3e,
   right_haunch:0x553a22, left_haunch:0x654a32};
 
+// Textures (?tex=0 keeps the old flat colours). Loaded with nearest filtering like the game.
+const TEXTURED = new URLSearchParams(location.search).get('tex') !== '0';
+const loader = new THREE.TextureLoader();
+function tex(path, w, h){
+  const t = loader.load(path, () => window.renderOnce && window.renderOnce());
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace;
+  return {map: t, w, h};
+}
+const TEX = {
+  vanilla: tex('tex/rabbit_brown.png', 64, 64),
+  classic: tex('tex/classic_brown.png', 64, 32),
+  babyVanilla: tex('tex/rabbit_brown_baby.png', 32, 32),
+  babyClassic: tex('tex/classic_brown_baby.png', 64, 32),
+};
+
+// One cube with Minecraft's box UV, built exactly like ModelPart.Cube: same 8 corners, same 6 quads,
+// same UV rectangles. Mirror swaps the x corners (the UVs stay on their vertices). DoubleSide so the
+// winding change from mirroring does not hide faces.
+function boxUV(x, y, z, w, h, d, u, v, uw, uh, ud, mirror, T){
+  let x0 = x, x1 = x + w; const y0 = y, y1 = y + h, z0 = z, z1 = z + d;
+  if (mirror){ const s = x0; x0 = x1; x1 = s; }
+  const P = [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
+  const a = u, b = u+ud, c = u+ud+uw, e = u+ud+uw+uw, f = u+ud+uw+ud, g = u+ud+uw+ud+uw;
+  const r0 = v, r1 = v+ud, r2 = v+ud+uh;
+  const quads = [
+    [[5,4,0,1], b, r0, c, r1],   // DOWN (min y)
+    [[2,3,7,6], c, r1, e, r0],   // UP (max y)
+    [[0,4,7,3], a, r1, b, r2],   // WEST
+    [[1,0,3,2], b, r1, c, r2],   // NORTH
+    [[4,5,6,7], c, r1, f, r2],   // EAST
+    [[5,1,2,6], f, r1, g, r2],   // SOUTH
+  ];
+  const pos = [], uvs = [], idx = [];
+  for (const [vs, u0, v0, u1, v1] of quads){
+    // ModelPart.Polygon: vertex 0 -> (u1,v0), 1 -> (u0,v0), 2 -> (u0,v1), 3 -> (u1,v1)
+    const uv = [[u1,v0],[u0,v0],[u0,v1],[u1,v1]];
+    const base = pos.length/3;
+    vs.forEach((vi, k) => { pos.push(...P[vi]); uvs.push(uv[k][0]/T.w, 1 - uv[k][1]/T.h); });
+    idx.push(base, base+1, base+2, base, base+2, base+3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(idx); geo.computeVertexNormals();
+  return geo;
+}
+
 // ModelPart -> Group. Minecraft coordinates (y down); the container flips x/y like the renderer.
-function build(spec, parts){
+function build(spec, parts, T){
   const g = new THREE.Group(); g.name = spec.name;
   g.userData.rest = {pos: spec.pivot.slice(), rot: spec.rot.slice()};
   for (const c of spec.cubes){
     const [u,v,x,y,z,w,h,d] = c;
+    if (TEXTURED && T){
+      // baby classic cubes carry their UV size and mirror flag: [.., uw, uh, ud, mirror]
+      const [uw, uh, ud, mir] = c.length >= 11 ? [c[8], c[9], c[10], !!c[11]] : [w, h, d, !!spec.mirror];
+      const m = new THREE.Mesh(boxUV(x, y, z, w, h, d, u, v, uw, uh, ud, mir, T),
+        new THREE.MeshLambertMaterial({map: T.map, side: THREE.DoubleSide, alphaTest: 0.5}));
+      g.add(m);
+      continue;
+    }
     const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
       new THREE.MeshLambertMaterial({color: COLORS[spec.name] ?? 0xaaaaaa}));
     m.position.set(x+w/2, y+h/2, z+d/2);
@@ -46,12 +101,12 @@ function build(spec, parts){
     m.add(e); g.add(m);
   }
   parts[spec.name] = g;
-  for (const ch of spec.children) g.add(build(ch, parts));
+  for (const ch of spec.children) g.add(build(ch, parts, T));
   return g;
 }
-function makeEntity(spec, scale, xOffset, xPos=0){
+function makeEntity(spec, scale, xOffset, xPos=0, T=null){
   const parts = {};
-  const root = build(spec, parts);
+  const root = build(spec, parts, T);
   const ent = new THREE.Group();           // world: ground at y=0
   const flip = new THREE.Group(); flip.scale.set(-1,-1,1); flip.position.y = 24.016;  // render: scale(-1,-1,1) + translate(0,-1.501,0)
   const scaler = new THREE.Group();        // MeshTransformer.scaling(f): translated(0, 24.016*(1-f)) and scale f
@@ -59,12 +114,12 @@ function makeEntity(spec, scale, xOffset, xPos=0){
   flip.add(scaler); scaler.add(root); ent.add(flip); ent.position.z = xOffset; ent.position.x = xPos; scene.add(ent);
   return parts;
 }
-const V = makeEntity(D.vanilla, 1.0, 16);
-const C = makeEntity(D.classic, D.classicScale, -14);
+const V = makeEntity(D.vanilla, 1.0, 16, 0, TEX.vanilla);
+const C = makeEntity(D.classic, D.classicScale, -14, 0, TEX.classic);
 // babies: further back on x so they don't overlap the adults
 const BX = -60;
-const BV = D.babyVanilla ? makeEntity(D.babyVanilla, 1.0, 16, BX) : {};
-const BC = D.babyClassic ? makeEntity(D.babyClassic, 1.0, -14, BX) : {};
+const BV = D.babyVanilla ? makeEntity(D.babyVanilla, 1.0, 16, BX, TEX.babyVanilla) : {};
+const BC = D.babyClassic ? makeEntity(D.babyClassic, 1.0, -14, BX, TEX.babyClassic) : {};
 function poseAll(anim, t){
   resetPose(V); resetPose(C); resetPose(BV); resetPose(BC);
   if (anim === 'NONE') return;
@@ -133,8 +188,35 @@ function frame(){
   if (ui('play').checked){ t = ((performance.now()-t0)/1000) % len; ui('t').value = t; }
   ui('tv').textContent = t.toFixed(3);
   poseAll(anim, t);
-  setView(); renderer.render(scene, cam); requestAnimationFrame(frame);
+  setView(); renderer.render(scene, cam);
+  if (!window.stopLoop) requestAnimationFrame(frame);
 }
+
+// Showcase frames for GIFs: fixed size, grass ground, no UI, camera given by the caller.
+// capture({anim, len, fps, cam:[x,y,z], look:[x,y,z], fov, w, h, name}) posts each frame to /frame/<name>/<i>
+// (tools/frameserver.py style server); without a server it just returns the data URLs count.
+window.capture = async (o) => {
+  window.stopLoop = true;
+  ui('ui').style.display = 'none';
+  grid.visible = false;
+  if (!window.ground){
+    const g = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshLambertMaterial({color: 0x6aa84f}));
+    g.rotation.x = -Math.PI/2; g.position.y = -0.01; scene.add(g); window.ground = g;
+  }
+  renderer.setSize(o.w ?? 720, o.h ?? 405); renderer.setPixelRatio(1);
+  cam.aspect = (o.w ?? 720)/(o.h ?? 405); cam.fov = o.fov ?? 30; cam.updateProjectionMatrix();
+  ui('adapt').checked = true;
+  const ents = {V, C, BV, BC}, show = o.show ?? ['V','C','BV','BC'];
+  for (const k in ents){ let r = ents[k].root; while (r && r.parent !== scene) r = r.parent; if (r) r.visible = show.includes(k); }
+  const fps = o.fps ?? 20, len = o.len ?? (D.anims[o.anim]?.length ?? 1), n = Math.round(len*fps);
+  for (let i = 0; i < n; i++){
+    poseAll(o.anim, i/fps);
+    cam.position.set(...o.cam); cam.lookAt(...o.look);
+    renderer.render(scene, cam);
+    await fetch(`/frame/${o.name}/${i}`, {method:'POST', body: renderer.domElement.toDataURL('image/png')});
+  }
+  return n;
+};
 window.setState = (anim, t, view) => { ui('anim').value=anim; ui('t').max=D.anims[anim]?.length??1; ui('t').value=t; if(view) ui('view').value=view; ui('play').checked=false; renderOnce(); };
 function renderOnce(){
   if (!renderer.domElement.width || !renderer.domElement.height) fit();
