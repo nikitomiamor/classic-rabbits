@@ -5,3 +5,4 @@ __pycache__/
 # decompiled vanilla Minecraft code, kept only locally for reference
 tools/*_26.3.java
 tools/viewer/tex/
+media/
